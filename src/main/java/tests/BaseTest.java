@@ -19,9 +19,4 @@ public class BaseTest {
 		masterPage.createReport();
 	}
 
-	@AfterSuite(alwaysRun = true)
-	public void tearDown() {
-		//masterPage.publishReport();
-	}
-
 }

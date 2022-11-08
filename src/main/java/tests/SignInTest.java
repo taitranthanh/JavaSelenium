@@ -1,6 +1,7 @@
 package tests;
 
 
+import org.testng.ITestResult;
 import org.testng.annotations.*;
 import pageFactory.MasterPage;
 import pageFactory.Bookings.SignInPage;

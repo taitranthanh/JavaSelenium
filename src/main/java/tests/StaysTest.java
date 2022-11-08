@@ -2,7 +2,6 @@ package tests;
 
 
 import org.testng.annotations.*;
-import org.testng.annotations.Test;
 
 import pageFactory.MasterPage;
 import pageFactory.Bookings.stays.StaysPage;
@@ -37,7 +36,7 @@ public class StaysTest extends BaseTest {
 		stayPage.clickOnSearchButton();
 	}
 	
-	@Test(enabled = true)
+	@Test
 	public void verifyUserCouldSearchWithEnoughInformation() {
 		String testName = "verifyUserCouldSearchWithEnoughInformation";
 		String destination = "Changi Airport";
@@ -48,11 +47,10 @@ public class StaysTest extends BaseTest {
 		stayPage.selectCheckInDay(checkInDate);
 		stayPage.selectCheckOutDay(checkoutDate);
 		stayPage.clickOnSearchButton();
-		
 	}
 	
 	@AfterMethod
-	public void closeBrowser() {
+	public void tearDown() {
 		masterPage.closeURL();
 		masterPage.publishReport();
 	}

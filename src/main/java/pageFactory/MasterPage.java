@@ -30,6 +30,7 @@ public class MasterPage {
 	public static WebDriver driver;
 	public static ExtentReports extentReport;
 	public static ExtentTest extentTest;
+	ITestResult result;
 	WebDriverWait driverWait;
 
 	public static int MEDIUM_WAIT = 10;
@@ -76,6 +77,7 @@ public class MasterPage {
 		try {
 			extentReport.endTest(extentTest);
 			extentReport.flush();
+			status(result);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
@@ -117,16 +119,19 @@ public class MasterPage {
 		return dest;
 	}
 
-	public void getResult(ITestResult result) {
-		if (result.getStatus() == ITestResult.FAILURE)
-			;
-		{
-			extentTest.log(LogStatus.FAIL, getCurrentMethodName(),
-					" Test case FAILED due to below issues:" + extentTest.addScreenCapture(captureScreen()));
-
-		}
-		if (result.getStatus() == ITestResult.SUCCESS) {
-			extentTest.log(LogStatus.PASS, getCurrentMethodName(), " Test Case PASSED");
+	public void status(ITestResult result) {
+		System.out.println("Status of execution is:" + result.getStatus());
+		try {
+			if (result.getStatus() == ITestResult.SUCCESS) {
+				System.out.println("Test case execution status is SUCCESS");
+			} else if (result.getStatus() == ITestResult.FAILURE) {
+				// Do something here
+				System.out.println("Test case execution status is FAILURE");
+			} else if (result.getStatus() == ITestResult.SKIP) {
+				System.out.println("Test case execution status is SKIP");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
