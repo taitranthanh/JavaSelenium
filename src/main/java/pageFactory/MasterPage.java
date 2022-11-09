@@ -16,6 +16,7 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.ITestResult;
@@ -30,7 +31,7 @@ public class MasterPage {
 	public static WebDriver driver;
 	public static ExtentReports extentReport;
 	public static ExtentTest extentTest;
-	ITestResult result;
+	public ITestResult result;
 	WebDriverWait driverWait;
 
 	public static int MEDIUM_WAIT = 10;
@@ -43,6 +44,17 @@ public class MasterPage {
 		driver.get(url);
 		driver.manage().window().maximize();
 		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+	}
+	
+	public void openUrlHeadLess(String url) {
+		createReport();
+		ChromeOptions options = new ChromeOptions();
+		options.addArguments("--headless");
+		driver = new ChromeDriver(options);
+		driver.get(url);
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		System.out.println("Open browser with headless mode");
 	}
 
 	public void closeURL() {
@@ -67,6 +79,7 @@ public class MasterPage {
 	public void startTest(String testName) {
 		try {
 			extentTest = extentReport.startTest(testName);
+			System.out.println("Starting a test case: "+testName);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
@@ -75,9 +88,9 @@ public class MasterPage {
 
 	public void publishReport() {
 		try {
-			extentReport.endTest(extentTest);
+			//status(result);
 			extentReport.flush();
-			status(result);
+			extentReport.endTest(extentTest);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
@@ -118,8 +131,8 @@ public class MasterPage {
 
 		return dest;
 	}
-
-	public void status(ITestResult result) {
+	
+	public void checkTestResult(ITestResult result) {
 		System.out.println("Status of execution is:" + result.getStatus());
 		try {
 			if (result.getStatus() == ITestResult.SUCCESS) {
@@ -130,10 +143,11 @@ public class MasterPage {
 			} else if (result.getStatus() == ITestResult.SKIP) {
 				System.out.println("Test case execution status is SKIP");
 			}
-		} catch (Exception e) {
+		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
 	}
+
 
 	public void verifyElementTitleIsDisplay(WebElement ele, String title) {
 		if (ele.isDisplayed()) {

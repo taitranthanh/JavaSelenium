@@ -1,7 +1,6 @@
 package tests;
 
 
-import org.testng.ITestResult;
 import org.testng.annotations.*;
 import pageFactory.MasterPage;
 import pageFactory.Bookings.SignInPage;
@@ -13,11 +12,11 @@ public class SignInTest extends BaseTest {
 	
 	@BeforeMethod
 	public void openBrowser() {
-		masterPage.openURL("https://www.booking.com/");
+		masterPage.openUrlHeadLess("https://www.booking.com/");
 		signInPage = new SignInPage(MasterPage.driver);
 	}
 
-	@Test
+	@Test (priority=1)
 	public void verifyCouldNotLoginWithoutCredential() {
 		testName="verifyCouldNotLoginWithoutCredential";
 		masterPage.startTest(testName);
@@ -26,7 +25,7 @@ public class SignInTest extends BaseTest {
 		signInPage.verifyNoEmailErrorIsDisplay();
 	}
 	
-	@Test 
+	@Test (priority =2)
 	public void verifyCouldNotLoginWithInvalidEmailFormat() {
 		testName="verifyCouldNotLoginWithInvalidEmailFormat";
 		masterPage.startTest(testName);
@@ -48,11 +47,11 @@ public class SignInTest extends BaseTest {
 		signInPage.verifyConfirmNewPasswordFieldIsDisplay();
 		signInPage.verifyCreateAccountButtonIsDisplay();
 	}
-
-	@AfterMethod
-	public void closeBrowser() {
-		masterPage.closeURL();
-		masterPage.publishReport();
-	}
 	
+	@AfterMethod
+	public void tearDown() {
+		masterPage.publishReport();
+		masterPage.closeURL();
+	}
+
 }

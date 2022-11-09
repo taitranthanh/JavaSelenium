@@ -12,7 +12,7 @@ public class StaysTest extends BaseTest {
 	
 	@BeforeMethod
 	public void openBookingUrl() {
-		masterPage.openURL("https://www.booking.com/");
+		masterPage.openUrlHeadLess("https://www.booking.com/");
 		stayPage = new StaysPage(MasterPage.driver);
 	}
 	
@@ -51,8 +51,8 @@ public class StaysTest extends BaseTest {
 	
 	@AfterMethod
 	public void tearDown() {
-		masterPage.closeURL();
 		masterPage.publishReport();
+		masterPage.closeURL();
 	}
 
 }
