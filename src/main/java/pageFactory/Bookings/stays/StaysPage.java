@@ -40,6 +40,7 @@ public class StaysPage extends MasterPage {
 			String ele = String.format("//li//span[normalize-space()='%s']", value);
 			WebElement option = getWebElement(ele);
 			waitForObject(option);
+			scrollUntilElementIsVisible(option);
 			option.click();
 			extentTest.log(LogStatus.PASS, getCurrentMethodName(), value + " is selected");
 

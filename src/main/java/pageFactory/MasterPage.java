@@ -297,7 +297,7 @@ public class MasterPage {
 		js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
 	}
 
-	public void scrollUntilElementIsVislble(WebElement ele) {
+	public void scrollUntilElementIsVisible(WebElement ele) {
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		js.executeScript("arguments[0].scrollIntoView(true);", ele);
 	}
