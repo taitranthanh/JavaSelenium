@@ -40,7 +40,7 @@ public class StaysPage extends MasterPage {
 			String ele = String.format("//li//span[normalize-space()='%s']", value);
 			WebElement option = getWebElement(ele);
 			waitForObject(option);
-			scrollUntilElementIsVisible(option);
+			scrollUntilElementIsVislble(option);
 			option.click();
 			extentTest.log(LogStatus.PASS, getCurrentMethodName(), value + " is selected");
 
@@ -49,16 +49,16 @@ public class StaysPage extends MasterPage {
 					extentTest.addScreenCapture(captureScreen()) + value + " is not selected");
 		}
 	}
-	
-	// Using format
+
+	// Using format 2022-11-08
 	public void selectCheckInDay(String date) {
 		WebElement ele = getWebElement(String.format(DATE_FORMAT, date));
-		clickOnElementTitle(ele, "Checkin date "+date);
+		clickOnElementTitle(ele, "Checkin date " + date);
 	}
-	
+
 	public void selectCheckOutDay(String date) {
 		WebElement ele = getWebElement(String.format(DATE_FORMAT, date));
-		clickOnElementTitle(ele, "Checkout date "+date);
+		clickOnElementTitle(ele, "Checkout date " + date);
 	}
 
 	/*

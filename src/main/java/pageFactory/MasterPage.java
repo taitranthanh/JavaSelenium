@@ -1,11 +1,13 @@
 package pageFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -17,6 +19,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.ITestResult;
@@ -24,7 +27,15 @@ import org.testng.ITestResult;
 import com.relevantcodes.extentreports.ExtentReports;
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+
 import org.apache.commons.io.FileUtils;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class MasterPage {
 
@@ -33,6 +44,10 @@ public class MasterPage {
 	public static ExtentTest extentTest;
 	public ITestResult result;
 	WebDriverWait driverWait;
+
+	XSSFWorkbook workbook;
+	XSSFSheet sheet;
+	XSSFCell cell;
 
 	public static int MEDIUM_WAIT = 10;
 
@@ -45,17 +60,28 @@ public class MasterPage {
 		driver.manage().window().maximize();
 		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 	}
-	
+
 	public void openUrlHeadLess(String url) {
 		createReport();
 		ChromeOptions options = new ChromeOptions();
 		options.addArguments("--headless");
+		options.addArguments("window-size=1920,1080");
 		driver = new ChromeDriver(options);
 		driver.get(url);
-		driver.manage().window().maximize();
 		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 		System.out.println("Open browser with headless mode");
 	}
+	
+	// Setup driver with WebDriverManager
+	public void openUrlWithFireFox(String url) {
+		WebDriverManager.firefoxdriver().setup();
+		driver = new FirefoxDriver();
+		driver.get(url);
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		System.out.println("Open browser with firefox");
+	}
+	
 
 	public void closeURL() {
 		driver.close();
@@ -69,7 +95,6 @@ public class MasterPage {
 	public void createReport() {
 		try {
 			extentReport = new ExtentReports("reports//seleniumExtentReports.html", false);
-			extentReport.config().documentTitle("Automation Extent Report");
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
@@ -79,7 +104,7 @@ public class MasterPage {
 	public void startTest(String testName) {
 		try {
 			extentTest = extentReport.startTest(testName);
-			System.out.println("Starting a test case: "+testName);
+			System.out.println("Starting a test case: " + testName);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
@@ -88,7 +113,7 @@ public class MasterPage {
 
 	public void publishReport() {
 		try {
-			//status(result);
+			checkTestResult();
 			extentReport.flush();
 			extentReport.endTest(extentTest);
 		} catch (NullPointerException e) {
@@ -122,7 +147,6 @@ public class MasterPage {
 			try {
 				FileUtils.copyFile(src, target);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} catch (NullPointerException e) {
@@ -131,23 +155,24 @@ public class MasterPage {
 
 		return dest;
 	}
-	
-	public void checkTestResult(ITestResult result) {
-		System.out.println("Status of execution is:" + result.getStatus());
+
+	public void checkTestResult() {
+		System.out.println("Status of execution is:" + extentTest.getRunStatus());
 		try {
-			if (result.getStatus() == ITestResult.SUCCESS) {
-				System.out.println("Test case execution status is SUCCESS");
-			} else if (result.getStatus() == ITestResult.FAILURE) {
+			if (extentTest.getRunStatus() == LogStatus.PASS) {
+				System.out.println("Test case execution status is PASSED");
+			} else if (extentTest.getRunStatus() == LogStatus.FAIL) {
 				// Do something here
 				System.out.println("Test case execution status is FAILURE");
-			} else if (result.getStatus() == ITestResult.SKIP) {
+			} else if (extentTest.getRunStatus() == LogStatus.SKIP) {
 				System.out.println("Test case execution status is SKIP");
+			} else if (extentTest.getRunStatus() == LogStatus.UNKNOWN) {
+				System.out.println("Test case execution status is UNKNOWN");
 			}
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
 	}
-
 
 	public void verifyElementTitleIsDisplay(WebElement ele, String title) {
 		if (ele.isDisplayed()) {
@@ -297,7 +322,7 @@ public class MasterPage {
 		js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
 	}
 
-	public void scrollUntilElementIsVisible(WebElement ele) {
+	public void scrollUntilElementIsVislble(WebElement ele) {
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		js.executeScript("arguments[0].scrollIntoView(true);", ele);
 	}
@@ -314,6 +339,7 @@ public class MasterPage {
 	}
 
 	public void clickOnSearchButton() {
+		scrollUntilElementIsVislble(getWebElement("//span[normalize-space(text())='Search']"));
 		clickOnElementTitle(getWebElement("//span[normalize-space(text())='Search']"), "Search Button");
 		waitPageIsLoad(10);
 	}
@@ -335,6 +361,78 @@ public class MasterPage {
 		String futureDate = new SimpleDateFormat("yyyy-MM-dd").format(c.getTime());
 		System.out.println("Feature date: " + futureDate);
 		return futureDate;
+	}
+
+	/*
+	 * Define for get Data from excel
+	 */
+
+	public void setExcelFile(String excelFilePath) throws IOException {
+		// Create an object of File class to open xls file
+		File file = new File(excelFilePath);
+
+		// Create an object of FileInputStream class to read excel file
+		FileInputStream inputStream = new FileInputStream(file);
+
+		// creating workbook instance that refers to .xls file
+		workbook = new XSSFWorkbook(inputStream);
+
+		// creating a Sheet object
+		sheet = workbook.getSheetAt(0);
+
+	}
+
+	public String getCellData(String excelFilePath, String testcaseID, String columnTitle) throws IOException {
+
+		setExcelFile(excelFilePath);
+		// getting the cell value from rowNumber and cell Number
+		cell = sheet.getRow(getRowIndex(testcaseID)).getCell(getColumnIndex(columnTitle));
+		cell.setCellType(CellType.STRING);
+		// returning the cell value as string
+		return cell.getStringCellValue();
+	}
+
+	public int getRowIndex(String testCaseID) throws IOException {
+		int rowIndex = 0;
+		boolean flag = false;
+		for (int i = 1; i < sheet.getLastRowNum() + 1; i++) {
+			XSSFCell rowValue = sheet.getRow(i).getCell(0);
+			rowValue.setCellType(CellType.STRING);
+			if (rowValue.getStringCellValue().equals(testCaseID)) {
+				rowIndex = i;
+				flag = true;
+				break;
+			}
+		}
+
+		if (!flag) {
+			extentTest.log(LogStatus.FAIL, getCurrentMethodName(), extentTest.getRunStatus().toString());
+			throw new IOException("Test case ID: " + testCaseID + " does not exists on excel file");
+		}
+		return rowIndex;
+	}
+
+	public int getColumnIndex(String columnTitle) throws IOException {
+		int columnIndex = 0;
+		Iterator<Row> rowIterator = sheet.rowIterator();
+		Row headerRow = (Row) rowIterator.next();
+		int numberOfCells = headerRow.getPhysicalNumberOfCells();
+		boolean flag = false;
+		for (int i = 0; i < numberOfCells; i++) {
+			XSSFCell cellValue = sheet.getRow(0).getCell(i);
+			cellValue.setCellType(CellType.STRING);
+			if (cellValue.getStringCellValue().equals(columnTitle)) {
+				columnIndex = i;
+				flag = true;
+				break;
+			}
+		}
+
+		if (!flag) {
+			extentTest.log(LogStatus.FAIL, getCurrentMethodName(), extentTest.getRunStatus().toString());
+			throw new IOException("Column Title: " + columnTitle + " does not exists on excel file");
+		}
+		return columnIndex;
 	}
 
 }
